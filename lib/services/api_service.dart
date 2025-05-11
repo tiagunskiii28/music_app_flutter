@@ -1,45 +1,35 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/artist_data.dart';
-import '../models/event_data.dart';
+import '../models/game_data.dart';
 
-/// Servicio para conectar con la API de Bandsintown.
+/// Servicio para conectar con la API de FreeToGame y obtener juegos.
 class ApiService {
-  static const _baseUrl = 'https://rest.bandsintown.com';
+  static const _baseUrl = 'https://www.freetogame.com/api';
 
-  final String appId;
-
-  ApiService({required this.appId});
-
-  /// Obtiene la información de un artista por [artistName].
-  Future<ArtistData> fetchArtist(String artistName) async {
-    final url = Uri.parse('$_baseUrl/artists/$artistName')
-        .replace(queryParameters: {'app_id': appId});
+  /// Obtiene la lista completa de juegos.
+  Future<List<GameData>> fetchGames() async {
+    final url = Uri.parse('$_baseUrl/games');
     final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      return ArtistData.fromJson(json);
-    } else {
-      throw Exception('Error al cargar artista: ${response.statusCode}');
-    }
-  }
 
-  /// Obtiene los eventos de un artista: "upcoming", "past", "all" o rango de fechas.
-  Future<List<EventData>> fetchEvents(
-      String artistName, {
-        String? dateFilter,
-      }) async {
-    final params = {'app_id': appId};
-    if (dateFilter != null) params['date'] = dateFilter;
-    final url = Uri.parse('$_baseUrl/artists/$artistName/events')
-        .replace(queryParameters: params);
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body);
-      return list.map((e) => EventData.fromJson(e)).toList();
-    } else {
-      throw Exception('Error al cargar eventos: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      throw Exception('Error al cargar juegos: ${response.statusCode}');
     }
+
+    final decoded = jsonDecode(response.body);
+    late final List<dynamic> jsonList;
+
+    // Maneja tanto un array JSON directo como un objeto con clave 'games'
+    if (decoded is List) {
+      jsonList = decoded;
+    } else if (decoded is Map<String, dynamic> && decoded.containsKey('games')) {
+      jsonList = decoded['games'] as List<dynamic>;
+    } else {
+      throw Exception('Formato de JSON inesperado');
+    }
+
+    return jsonList
+        .map((item) => GameData.fromJson(item as Map<String, dynamic>))
+        .toList();
   }
 }
