@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'artist_data.dart';
+import 'venue_data.dart';
+import 'offer_data.dart';
 
 /// Modelo que representa los datos de un evento obtenido de la API Bandsintown.
 class EventData {
@@ -61,74 +62,4 @@ class EventData {
 
   @override
   String toString() => jsonEncode(toJson());
-}
-
-/// Modelo que representa el lugar (venue) de un evento.
-class VenueData {
-  final String name;
-  final double latitude;
-  final double longitude;
-  final String city;
-  final String region;
-  final String country;
-
-  VenueData({
-    required this.name,
-    required this.latitude,
-    required this.longitude,
-    required this.city,
-    required this.region,
-    required this.country,
-  });
-
-  factory VenueData.fromJson(Map<String, dynamic> json) {
-    return VenueData(
-      name: json['name'] as String,
-      latitude: double.parse(json['latitude'] as String),
-      longitude: double.parse(json['longitude'] as String),
-      city: json['city'] as String,
-      region: json['region'] as String,
-      country: json['country'] as String,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'latitude': latitude.toString(),
-      'longitude': longitude.toString(),
-      'city': city,
-      'region': region,
-      'country': country,
-    };
-  }
-}
-
-/// Modelo que representa una oferta de entradas para el evento.
-class OfferData {
-  final String type;
-  final String url;
-  final String status;
-
-  OfferData({
-    required this.type,
-    required this.url,
-    required this.status,
-  });
-
-  factory OfferData.fromJson(Map<String, dynamic> json) {
-    return OfferData(
-      type: json['type'] as String,
-      url: json['url'] as String,
-      status: json['status'] as String,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'url': url,
-      'status': status,
-    };
-  }
 }
